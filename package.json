@@ -1,14 +1,11 @@
 {
   "dependencies": {
     "fs": "^0.0.1-security",
-    "got": "^12.4.1",
     "typescript": "^4.8.2",
-    "video-format-converter": "^1.1.0",
-    "youtube-playlist": "^1.0.4",
-    "ytdl-core": "^4.11.2"
+    "ytdl-core": "^4.11.2",
+    "ytpl": "^2.3.0"
   },
   "devDependencies": {
-    "@types/got": "^9.6.12",
     "@types/node": "^18.7.14"
   },
   "scripts": {

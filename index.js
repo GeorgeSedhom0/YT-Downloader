@@ -14,17 +14,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ytdl_core_1 = __importDefault(require("ytdl-core"));
 const fs_1 = __importDefault(require("fs"));
-const index_1 = __importDefault(require("./node_modules/youtube-playlist/index"));
-console.log(index_1.default);
+const getVideos_1 = __importDefault(require("./getVideos"));
+fs_1.default.existsSync("audios") ? null : fs_1.default.mkdirSync("audios");
+const urls = [
+    "https://www.youtube.com/watch?v=qRaysF60hOc&list=PL9SbZPwhBPI3zM8vDi0XtI4gizNxgn1qQ",
+];
 const download = (url) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const videoName = (yield ytdl_core_1.default.getBasicInfo(url)).videoDetails.title;
-        const vid = videoName.replace(/[^a-z0-9]/gi, "_");
-        console.log(vid);
-        (0, ytdl_core_1.default)(url, { filter: "audioonly" }).pipe(fs_1.default.createWriteStream(`vids/${vid}.mp4`));
+        const videos = yield (0, getVideos_1.default)(url);
+        videos.forEach((video) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log(`Downloading ${video.title}...`);
+            (0, ytdl_core_1.default)(video.url, { filter: "audioonly" }).pipe(fs_1.default.createWriteStream(`audios/${video.title}.mp3`));
+            console.log(`Done`);
+        }));
     }
     catch (err) {
-        console.log(err);
+        console.log("download failed", err);
     }
 });
-download("https://www.youtube.com/watch?v=Tbb-uPCU8zg&list=RDTbb-uPCU8zg&start_radio=1");
+urls.forEach((url) => download(url));

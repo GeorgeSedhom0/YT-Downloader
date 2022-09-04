@@ -1,22 +1,25 @@
 import ytdl from "ytdl-core";
 import fs from "fs";
-import ytlist from "./node_modules/youtube-playlist/index";
+import getVideos from "./getVideos";
 
-console.log(ytlist);
+fs.existsSync("audios") ? null : fs.mkdirSync("audios");
 
+const urls = [
+  "https://www.youtube.com/watch?v=qRaysF60hOc&list=PL9SbZPwhBPI3zM8vDi0XtI4gizNxgn1qQ",
+];
 const download = async (url: string) => {
   try {
-    const videoName = (await ytdl.getBasicInfo(url)).videoDetails.title;
-    const vid = videoName.replace(/[^a-z0-9]/gi, "_");
-    console.log(vid);
-    ytdl(url, { filter: "audioonly" }).pipe(
-      fs.createWriteStream(`vids/${vid}.mp4`)
-    );
+    const videos = await getVideos(url);
+    videos.forEach(async (video) => {
+      console.log(`Downloading ${video.title}...`);
+      ytdl(video.url, { filter: "audioonly" }).pipe(
+        fs.createWriteStream(`audios/${video.title}.mp3`)
+      );
+      console.log(`Done`);
+    });
   } catch (err) {
-    console.log(err);
+    console.log("download failed", err);
   }
 };
 
-download(
-  "https://www.youtube.com/watch?v=Tbb-uPCU8zg&list=RDTbb-uPCU8zg&start_radio=1"
-);
+urls.forEach((url) => download(url));
