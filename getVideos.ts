@@ -11,6 +11,8 @@ const makeValidName = (name: string) => {
 };
 
 const getVideos = async (url: string) => {
+  if (!ytdl.validateURL(url)) throw new Error("Invalid URL");
+
   if (ytpl.validateID(url)) {
     console.log("Playlist");
     const playlist = (await ytpl(url)).items;
