@@ -12,26 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ytpl_1 = __importDefault(require("ytpl"));
+const fs_1 = __importDefault(require("fs"));
 const ytdl_core_1 = __importDefault(require("ytdl-core"));
-const makeValidName = (name) => {
-    return name.replace(/[^a-zA-Z0-9 ]/g, "_");
-};
-const getVideos = (url) => __awaiter(void 0, void 0, void 0, function* () {
-    if (ytpl_1.default.validateID(url)) {
-        console.log("Playlist");
-        const playlist = (yield (0, ytpl_1.default)(url)).items;
-        return playlist.map((video) => {
-            return { url: video.shortUrl, title: makeValidName(video.title) };
+const download = (url, title) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(`Downloading ${title}...`);
+    const download = new Promise((resolve, reject) => {
+        (0, ytdl_core_1.default)(url, { filter: "audioonly" })
+            .pipe(fs_1.default.createWriteStream(`audios/${title}.mp3`))
+            .on("finish", () => {
+            resolve(`Downloaded ${title}`);
+        })
+            .on("error", () => {
+            reject(`Could Not Download ${title}`);
         });
-    }
-    else {
-        return [
-            {
-                url: url,
-                title: makeValidName(yield ytdl_core_1.default.getBasicInfo(url).then((info) => info.videoDetails.title)),
-            },
-        ];
-    }
+    });
+    return yield download;
 });
-exports.default = getVideos;
+exports.default = download;

@@ -12,11 +12,13 @@ const makeValidName = (name: string) => {
 
 const getVideos = async (url: string) => {
   if (ytpl.validateID(url)) {
+    console.log("Playlist");
     const playlist = (await ytpl(url)).items;
     return playlist.map((video) => {
       return { url: video.shortUrl, title: makeValidName(video.title) };
     });
   } else {
+    console.log("Single Video");
     return [
       {
         url: url,

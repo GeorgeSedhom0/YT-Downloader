@@ -1,25 +1,23 @@
-import ytdl from "ytdl-core";
 import fs from "fs";
 import getVideos from "./getVideos";
+import download from "./download";
 
 fs.existsSync("audios") ? null : fs.mkdirSync("audios");
 
 const urls = [
-  "https://www.youtube.com/watch?v=qRaysF60hOc&list=PL9SbZPwhBPI3zM8vDi0XtI4gizNxgn1qQ",
+  "https://www.youtube.com/watch?v=VLMo0rthnoo&list=PLogBXxHVJONBiVt5ZZ231QaoN4XSimF6P",
 ];
-const download = async (url: string) => {
+
+const downloadAll = async (url: string) => {
   try {
     const videos = await getVideos(url);
-    videos.forEach(async (video) => {
-      console.log(`Downloading ${video.title}...`);
-      ytdl(video.url, { filter: "audioonly" }).pipe(
-        fs.createWriteStream(`audios/${video.title}.mp3`)
-      );
-      console.log(`Done`);
-    });
+    for (const video of videos) {
+      const result = await download(video.url, video.title);
+      console.log(result);
+    }
   } catch (err) {
     console.log("download failed", err);
   }
 };
 
-urls.forEach((url) => download(url));
+urls.forEach((url) => downloadAll(url));
