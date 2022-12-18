@@ -1,7 +1,7 @@
 import ytpl from "ytpl";
 import ytdl from "ytdl-core";
 
-interface video {
+export interface video {
   url: string;
   title: string;
 }
@@ -10,7 +10,7 @@ const makeValidName = (name: string) => {
   return name.replace(/[^a-zA-Z0-9 ]/g, "_");
 };
 
-const getVideos = async (url: string) => {
+const getVideos = async (url: string): Promise<video[]> => {
   if (!ytdl.validateURL(url)) throw new Error("Invalid URL");
 
   if (ytpl.validateID(url)) {
