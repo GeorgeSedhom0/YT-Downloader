@@ -12,10 +12,9 @@ const isValidUrl = (url: string) => {
   );
   return !!pattern.test(url);
 };
-
-const Inputs = () => {
-  const [urls, setUrls] = useState([""]);
-
+// Q: How to pass props to a component in TypeScript?
+// A: https://stackoverflow.com/a/58123398/128761
+const Inputs = ({ urls, setUrls }) => {
   return (
     <>
       <h1>Welcome to YouTube Downloader</h1>

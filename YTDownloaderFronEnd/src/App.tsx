@@ -1,7 +1,9 @@
 import "./App.css";
-import Inputs from "./componants/inputs";
+import Home from "./pages/Home";
 // for the theme
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+// for the routing
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -25,9 +27,11 @@ const theme = createTheme({
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
-        <Inputs />
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 };
