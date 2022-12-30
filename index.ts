@@ -5,6 +5,13 @@ import download from "./downloadUtils/download";
 // import express and create a server
 import express from "express";
 
+interface progress {
+  title: string;
+  url: string;
+  state: string;
+  time: string;
+}
+
 const app = express();
 const port = 3000;
 
@@ -28,7 +35,7 @@ fs.existsSync("audios") ? null : fs.mkdirSync("audios");
 
 let YTUrls: string[] = [];
 
-let progress = "";
+let progress: progress[] = [];
 
 let time = Date.now();
 
@@ -43,7 +50,13 @@ const downloadAll = async (url: string) => {
         timeElapsed > 60
           ? `${Math.floor(timeElapsed / 60)} minutes`
           : `${timeElapsed} seconds`;
-      progress += `Downloading ${video.title}... Time Passed: ${timeElapsedString}\n`;
+      // progress += `Downloading ${video.title}... Time Passed: ${timeElapsedString}\n`;
+      progress.push({
+        title: video.title,
+        url: video.url,
+        state: "Downloading",
+        time: timeElapsedString,
+      });
 
       const result = await download(video.url, video.title);
 
@@ -54,7 +67,16 @@ const downloadAll = async (url: string) => {
           ? `${Math.floor(timeElapsed2 / 60)} minutes`
           : `${timeElapsed2} seconds`;
 
-      progress += `Downloadded ${result} Time Passed: ${timeElapsedString2}\n`;
+      // progress += `Downloadded ${result} Time Passed: ${timeElapsedString2}\n`;
+      const progressIndex = progress.findIndex(
+        (p) => p.title === video.title && p.state === "Downloading"
+      );
+      progress[progressIndex] = {
+        title: video.title,
+        url: video.url,
+        state: "Downloaded",
+        time: timeElapsedString2,
+      };
     }
   } catch (err) {
     console.log("download failed", err);
@@ -62,14 +84,18 @@ const downloadAll = async (url: string) => {
 };
 
 app.post("/getinfo", async (req, res) => {
-  const urls = req.body.urls;
-  const videos: video[] = [];
-  for (const url of urls) {
-    const video = await getVideos(url);
-    videos.push(...video);
+  try {
+    const urls = req.body.urls;
+    const videos: video[] = [];
+    for (const url of urls) {
+      const video = await getVideos(url);
+      videos.push(...video);
+    }
+    YTUrls = urls;
+    res.send(videos);
+  } catch (err) {
+    console.log(err);
   }
-  YTUrls = urls;
-  res.send(videos);
 });
 
 app.get("/download", async (req, res) => {
@@ -87,11 +113,12 @@ app.get("/download", async (req, res) => {
       ? `${Math.floor(timeElapsed / 60)} minutes`
       : `${timeElapsed} seconds`;
 
-  const finalProgress = `${progress} ALL DONE!! Time Passed: ${timeElapsedString}`;
-  res.send({ progress: finalProgress });
-  progress = "";
+  // const finalProgress = `${progress} ALL DONE!! Time Passed: ${timeElapsedString}`;
+  res.send({ progress: progress });
+  progress = [];
 });
 
 app.get("/progress", (req, res) => {
+  console.log(progress);
   res.send({ progress });
 });
