@@ -2,6 +2,15 @@ import fs from "fs";
 import getVideos from "./downloadUtils/getVideos";
 import { video } from "./downloadUtils/getVideos";
 import download from "./downloadUtils/download";
+import ffmpeg from "fluent-ffmpeg";
+import path from "path";
+
+const ffmpegPath = path.resolve(
+  __dirname,
+  "downloadUtils/ffmpeg/bin/ffmpeg.exe"
+);
+ffmpeg.setFfmpegPath(ffmpegPath);
+
 // import express and create a server
 import express from "express";
 
@@ -74,9 +83,35 @@ const downloadAll = async (url: string) => {
       progress[progressIndex] = {
         title: video.title,
         url: video.url,
-        state: "Downloaded",
+        state: "Downloaded and Converting",
         time: timeElapsedString2,
       };
+      await new Promise((resolve, reject) => {
+        ffmpeg(`audios/${result}`)
+          .audioBitrate(128)
+          .save(`audios/mp3s/${video.title}.mp3`)
+          .on("end", () => {
+            console.log("Conversion Done");
+            let timeElapsed3 = Date.now() - time;
+            timeElapsed3 = Math.floor(timeElapsed3 / 1000);
+            const timeElapsedString3 =
+              timeElapsed3 > 60
+                ? `${Math.floor(timeElapsed3 / 60)} minutes`
+                : `${timeElapsed3} seconds`;
+
+            progress[progressIndex] = {
+              title: video.title,
+              url: video.url,
+              state: "Converted",
+              time: timeElapsedString3,
+            };
+            resolve("done");
+          })
+          .on("error", (err) => {
+            console.log("Conversion Failed", err);
+            reject(err);
+          });
+      });
     }
   } catch (err) {
     console.log("download failed", err);
