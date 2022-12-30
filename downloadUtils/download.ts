@@ -9,10 +9,10 @@ const download = async (url: string, title: string) => {
         quality: "highestaudio",
       });
       ytdl(url, { format: format })
-        .pipe(fs.createWriteStream(`audios/${title}.mp3`))
+        .pipe(fs.createWriteStream(`audios/${title}.${format.container}`))
         .on("finish", () => {
           console.log(`Downloaded ${title}`);
-          resolve(`${title}.mp3`);
+          resolve(`${title}.${format.container}`);
         })
         .on("error", () => {
           reject(`Could Not Download ${title}`);
