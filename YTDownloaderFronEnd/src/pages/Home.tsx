@@ -7,7 +7,7 @@ const Home = () => {
   return (
     <div className="App">
       <Inputs urls={urls} setUrls={setUrls} />
-      <Videos />
+      <Videos urls={urls} setUrls={setUrls} />
     </div>
   );
 };

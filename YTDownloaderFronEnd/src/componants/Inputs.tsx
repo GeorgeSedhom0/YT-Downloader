@@ -2,16 +2,7 @@ import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { TextField } from "@mui/material";
-
-const isValidUrl = (url: string) => {
-  // validate youtube url
-  const pattern = new RegExp(
-    "^(https?:\\/\\/)?" + // protocol
-      "(www.)?" + // www
-      "(youtube.com|youtu.be)" // domain name
-  );
-  return !!pattern.test(url);
-};
+import isValidUrl from "../utils/isValidUrl";
 
 const Inputs: React.FC<{
   urls: string[];
