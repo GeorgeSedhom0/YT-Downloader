@@ -4,6 +4,7 @@ import ytdl from "ytdl-core";
 export interface video {
   url: string;
   title: string;
+  formats: string[];
 }
 
 const makeValidName = (name: string) => {
@@ -15,17 +16,31 @@ const getVideos = async (url: string): Promise<video[]> => {
 
   if (ytpl.validateID(url)) {
     console.log("Playlist");
-    const playlist = (await ytpl(url)).items;
-    return playlist.map((video) => {
-      return { url: video.shortUrl, title: makeValidName(video.title) };
-    });
+    let playlist = (await ytpl(url)).items;
+    const playListData: video[] = [];
+    for (let i = 0; i < playlist.length; i++) {
+      const info = await ytdl.getInfo(playlist[i].shortUrl);
+      playListData[i] = {
+        url: playlist[i].shortUrl,
+        title: makeValidName(info.videoDetails.title),
+        formats: info.formats.map(
+          (format) => `${format.container} ${format.width}X${format.height}`
+        ),
+      };
+    }
+    return playListData;
   } else {
     console.log("Single Video");
+    const info = await ytdl.getInfo(url);
+    console.log(info.formats);
     return [
       {
         url: url,
         title: makeValidName(
           await ytdl.getBasicInfo(url).then((info) => info.videoDetails.title)
+        ),
+        formats: info.formats.map(
+          (format) => `${format.container} ${format.width}X${format.height}`
         ),
       },
     ];

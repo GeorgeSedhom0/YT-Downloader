@@ -3,12 +3,15 @@ import Divider from "@mui/material/Divider";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Tooltip from "@mui/material/Tooltip";
 import { useState, useEffect } from "react";
+import { MenuItem, Select } from "@mui/material";
 
 interface Video {
   title: string;
   url: string;
   state: string;
   time: string;
+  formats: string[];
+  selectedFormat: string;
 }
 
 const Videos: React.FC<{
@@ -44,6 +47,7 @@ const Videos: React.FC<{
     data.forEach((video: Video) => {
       video.state = "Pending";
       video.time = "0";
+      video.selectedFormat = "Auto (Hright Audio)";
     });
 
     videos.push(...data);
@@ -115,6 +119,21 @@ const Videos: React.FC<{
                 <p>Link: {video.url}</p>
                 <p>State: {video.state}</p>
                 <p>Time: {video.time}</p>
+                <Select
+                  value={videos[index].selectedFormat}
+                  onChange={(e) => {
+                    const newVideos = [...videos];
+                    newVideos[index].selectedFormat = e.target.value as string;
+                    setVideos(newVideos);
+                  }}
+                >
+                  <MenuItem value={"Auto (Hright Audio)"}>Auto</MenuItem>
+                  {video.formats.map((format, index) => (
+                    <MenuItem key={index} value={format}>
+                      {format}
+                    </MenuItem>
+                  ))}
+                </Select>
                 <Divider />
               </div>
             ))}
