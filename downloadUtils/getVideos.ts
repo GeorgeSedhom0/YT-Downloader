@@ -23,9 +23,15 @@ const getVideos = async (url: string): Promise<video[]> => {
       playListData[i] = {
         url: playlist[i].shortUrl,
         title: makeValidName(info.videoDetails.title),
-        formats: info.formats.map(
-          (format) => `${format.container} ${format.width}X${format.height}`
-        ),
+        formats: info.formats.map((format) => {
+          if (format.width && format.height) {
+            return `${format.container} ${format.width || "0"}X${
+              format.height || "0"
+            }`;
+          } else {
+            return `Unknown`;
+          }
+        }),
       };
     }
     return playListData;
@@ -40,7 +46,8 @@ const getVideos = async (url: string): Promise<video[]> => {
           await ytdl.getBasicInfo(url).then((info) => info.videoDetails.title)
         ),
         formats: info.formats.map(
-          (format) => `${format.container} ${format.width}X${format.height}`
+          (format) =>
+            `${format.container} ${format.width || "0"}X${format.height || "0"}`
         ),
       },
     ];

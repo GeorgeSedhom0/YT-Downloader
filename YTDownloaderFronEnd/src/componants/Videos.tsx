@@ -47,7 +47,7 @@ const Videos: React.FC<{
     data.forEach((video: Video) => {
       video.state = "Pending";
       video.time = "0";
-      video.selectedFormat = "Auto (Hright Audio)";
+      video.selectedFormat = "Auto (Best Audio)";
     });
 
     videos.push(...data);
@@ -57,15 +57,27 @@ const Videos: React.FC<{
   };
 
   const download = async () => {
-    setLoading(true);
     if (disableButton) return;
     if (urls.length === 0) return;
+    setLoading(true);
 
     const getProgress = async () => {
       const response = await fetch(`http://localhost:3000/progress`);
       const data = await response.json();
       setVideos(data.progress);
     };
+
+    // send All the videos to the backend
+
+    const res = await fetch(`http://localhost:3000/setFormats`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ videos: videos }),
+    });
+    const theData = await res.json();
+    console.log(theData);
 
     const progressInterval = setInterval(getProgress, 5000);
     const response = await fetch(`http://localhost:3000/download`);
@@ -127,12 +139,15 @@ const Videos: React.FC<{
                     setVideos(newVideos);
                   }}
                 >
-                  <MenuItem value={"Auto (Hright Audio)"}>Auto</MenuItem>
-                  {video.formats.map((format, index) => (
-                    <MenuItem key={index} value={format}>
-                      {format}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value={"Auto (Best Audio)"}>
+                    Auto (Best Audio)
+                  </MenuItem>
+                  {video.formats &&
+                    video.formats.map((format, index) => (
+                      <MenuItem key={index} value={format}>
+                        {format}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <Divider />
               </div>
